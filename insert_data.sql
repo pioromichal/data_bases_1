@@ -1,22 +1,22 @@
--- Wstawianie danych do Machine_Type
-INSERT INTO Machine_Type (type_name, service_interval_hours, service_interval_products)
+-- Wstawianie danych do Machine_Types
+INSERT INTO Machine_Types (type_name, service_interval_hours, service_interval_products)
 VALUES ('Fermenter', 1000, 5000);
-INSERT INTO Machine_Type (type_name, service_interval_hours, service_interval_products)
+INSERT INTO Machine_Types (type_name, service_interval_hours, service_interval_products)
 VALUES ('Bottling Machine', 500, 2000);
-INSERT INTO Machine_Type (type_name, service_interval_hours, service_interval_products)
+INSERT INTO Machine_Types (type_name, service_interval_hours, service_interval_products)
 VALUES ('Pasteurizer', 700, 3000);
 COMMIT;
 
--- Wstawianie danych do Production_Line
-INSERT INTO Production_Line (line_name, start_date, status)
+-- Wstawianie danych do Production_Lines
+INSERT INTO Production_Lines (line_name, start_date, status)
 VALUES ('Fermentation Line 1', DATE '2024-01-01', 'ACTIVE');
-INSERT INTO Production_Line (line_name, start_date, status)
+INSERT INTO Production_Lines (line_name, start_date, status)
 VALUES ('Fermentation Line 2', DATE '2024-01-01', 'ACTIVE');
-INSERT INTO Production_Line (line_name, start_date, status)
+INSERT INTO Production_Lines (line_name, start_date, status)
 VALUES ('Bottling Line 1', DATE '2024-01-01', 'ACTIVE');
-INSERT INTO Production_Line (line_name, start_date, status)
+INSERT INTO Production_Lines (line_name, start_date, status)
 VALUES ('Fermentation Line 3', DATE '2024-05-01', 'ACTIVE');
-INSERT INTO Production_Line (line_name, start_date, status)
+INSERT INTO Production_Lines (line_name, start_date, status)
 VALUES ('Bottling Line 2', DATE '2024-07-01', 'ACTIVE');
 COMMIT;
 
@@ -112,35 +112,35 @@ END;
 /
 COMMIT;
 
--- Wstawianie danych do Machine_History
-INSERT INTO Machine_History (machine_id, new_production_line_id, transfer_date)
+-- Wstawianie danych do Machines_History
+INSERT INTO Machines_History (machine_id, new_production_line_id, transfer_date)
 VALUES (1, 2, DATE '2024-01-01');
-INSERT INTO Machine_History (machine_id, new_production_line_id, transfer_date)
+INSERT INTO Machines_History (machine_id, new_production_line_id, transfer_date)
 VALUES (2, 3, DATE '2024-01-01');
-INSERT INTO Machine_History (machine_id, new_production_line_id, transfer_date)
+INSERT INTO Machines_History (machine_id, new_production_line_id, transfer_date)
 VALUES (3, 1, DATE '2024-01-01');
-INSERT INTO Machine_History (machine_id, new_production_line_id, transfer_date)
+INSERT INTO Machines_History (machine_id, new_production_line_id, transfer_date)
 VALUES (4, 2, DATE '2024-01-01');
-INSERT INTO Machine_History (machine_id, new_production_line_id, transfer_date)
+INSERT INTO Machines_History (machine_id, new_production_line_id, transfer_date)
 VALUES (5, 1, DATE '2024-01-01');
-INSERT INTO Machine_History (machine_id, new_production_line_id, transfer_date)
+INSERT INTO Machines_History (machine_id, new_production_line_id, transfer_date)
 VALUES (6, 3, DATE '2024-01-01');
-INSERT INTO Machine_History (machine_id, new_production_line_id, transfer_date)
+INSERT INTO Machines_History (machine_id, new_production_line_id, transfer_date)
 VALUES (7, 4, DATE '2024-01-01');
-INSERT INTO Machine_History (machine_id, new_production_line_id, transfer_date)
+INSERT INTO Machines_History (machine_id, new_production_line_id, transfer_date)
 VALUES (8, 5, DATE '2024-01-01');
-INSERT INTO Machine_History (machine_id, new_production_line_id, transfer_date)
+INSERT INTO Machines_History (machine_id, new_production_line_id, transfer_date)
 VALUES (9, 1, DATE '2024-01-01');
-INSERT INTO Machine_History (machine_id, new_production_line_id, transfer_date)
+INSERT INTO Machines_History (machine_id, new_production_line_id, transfer_date)
 VALUES (10, 4, DATE '2024-01-01');
-INSERT INTO Machine_History (machine_id, new_production_line_id, transfer_date)
+INSERT INTO Machines_History (machine_id, new_production_line_id, transfer_date)
 VALUES (11, 2, DATE '2024-01-01');
-INSERT INTO Machine_History (machine_id, new_production_line_id, transfer_date)
+INSERT INTO Machines_History (machine_id, new_production_line_id, transfer_date)
 VALUES (12, 5, DATE '2024-01-01');
-INSERT INTO Machine_History (machine_id, new_production_line_id, transfer_date)
+INSERT INTO Machines_History (machine_id, new_production_line_id, transfer_date)
 VALUES (13, 3, DATE '2024-01-01');
-INSERT INTO Machine_History (machine_id, new_production_line_id, transfer_date)
+INSERT INTO Machines_History (machine_id, new_production_line_id, transfer_date)
 VALUES (14, 1, DATE '2024-01-01');
-INSERT INTO Machine_History (machine_id, new_production_line_id, transfer_date)
+INSERT INTO Machines_History (machine_id, new_production_line_id, transfer_date)
 VALUES (15, 2, DATE '2024-01-01');
 
