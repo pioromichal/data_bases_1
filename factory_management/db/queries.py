@@ -1,19 +1,12 @@
 def get_all_employees(cursor):
     cursor.execute("""
-        SELECT employee_id, name, surname, salary, birth_date, gender
+        SELECT *
         FROM Employees
     """)
     return cursor.fetchall()
 
-def add_employee(cursor, name, surname, salary, birth_date, gender, position_id):
+def add_employee(cursor, name, surname, salary, birth_date, gender, position_id, production_line_id):
     cursor.execute("""
-        INSERT INTO Employees (name, surname, salary, birth_date, gender, position_id)
-        VALUES (:name, :surname, :salary, :birth_date, :gender, :position_id)
-    """, {
-        "name": name,
-        "surname": surname,
-        "salary": salary,
-        "birth_date": birth_date,
-        "gender": gender,
-        "position_id": position_id
-    })
+        INSERT INTO employees (name, surname, salary, birth_date, gender, position_id, production_line_id)
+        VALUES (:1, :2, :3, TO_DATE(:4, 'YYYY-MM-DD'), :5, :6, :7)
+    """, (name, surname, salary, birth_date, gender, position_id, production_line_id))

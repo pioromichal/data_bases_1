@@ -1,5 +1,6 @@
 from rich.console import Console
 from rich.table import Table
+from datetime import datetime
 
 def display_table(headers, rows):
     table = Table(title="Data")
@@ -7,7 +8,14 @@ def display_table(headers, rows):
         table.add_column(header, style="cyan", no_wrap=True)
 
     for row in rows:
-        table.add_row(*map(str, row))
+        formatted_row = []
+        for cell in row:
+            if isinstance(cell, datetime):
+                # Formatowanie daty
+                formatted_row.append(cell.strftime("%Y-%m-%d"))
+            else:
+                formatted_row.append(str(cell))
+        table.add_row(*formatted_row)
 
     console = Console()
     console.print(table)
