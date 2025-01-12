@@ -21,7 +21,7 @@ BEGIN
     END LOOP;
 END;
 /
-DROP DATABASE ora4;
+
 
 -- Tabela: Machine_Type
 CREATE TABLE Machine_Types (
