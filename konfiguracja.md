@@ -1,7 +1,7 @@
 Instrukcja:
 https://docs.oracle.com/en/database/oracle/oracle-database/23/lacli/install-instant-client-using-zip.html
 
-Pobrać plik:
+Pobrać ten plik:
 https://download.oracle.com/otn_software/linux/instantclient/2360000/instantclient-basic-linux.x64-23.6.0.24.10.zip
 
 Utworzyć folder i wypakować:
@@ -22,5 +22,6 @@ sudo ldconfig
 ```
 
 ```bash
-sudo apt install libaio1 cx_Oracle
+sudo apt install libaio1 
+pip install cx_Oracle 
 ```
