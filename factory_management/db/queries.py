@@ -21,8 +21,9 @@ def get_all_employees_with_names(cursor):
             p.position_name,
             pl.line_name
         FROM Employees e
-        RIGHT JOIN Positions p ON e.position_id = p.position_id
-        RIGHT JOIN Production_Lines pl ON e.production_line_id = pl.production_line_id
+        LEFT JOIN Positions p ON e.position_id = p.position_id
+        LEFT JOIN Production_Lines pl ON e.production_line_id = pl.production_line_id
+        ORDER BY e.employee_id
     """
     cursor.execute(query)
     return cursor.fetchall()

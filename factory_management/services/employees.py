@@ -5,52 +5,50 @@ from utils.input_validation import *
 from datetime import datetime
 import cx_Oracle
 
+headers = ["ID", "Name", "Surname", "Salary", "Birth Date", "Gender", "Position Name", "Production Line Name"]
+
 def list_employees():
     conn = get_connection()
     cursor = conn.cursor()
     employees = get_all_employees_with_names(cursor)
-    headers = [
-        "ID", "Name", "Surname", "Salary", 
-        "Birth Date", "Gender", "Position Name", "Production Line Name"
-    ]
     display_table("Employees", headers, employees)
     conn.close()
 
 def create_employee():
     name = get_valid_input(
-        "Enter name: ", 
-        validate_non_empty, 
-        "Invalid name. Please try again."
+        "Enter name: ",
+        validate_non_empty,
+        "Invalid name"
     )
     surname = get_valid_input(
-        "Enter surname: ", 
-        lambda x: x.strip() if x.strip() else ValueError("Surname cannot be empty"), 
-        "Invalid surname. Please try again."
+        "Enter surname: ",
+        validate_non_empty,
+        "Invalid surname"
     )
     salary = get_valid_input(
-        "Enter salary: ", 
-        lambda x: float(x) if float(x) > 0 else ValueError("Salary must be positive"), 
-        "Invalid salary. Please enter a positive number."
+        "Enter salary: ",
+        validate_positive_number,
+        "Invalid salary"
     )
     birth_date = get_valid_input(
-        "Enter birth date (YYYY-MM-DD): ", 
-        lambda x: datetime.strptime(x, "%Y-%m-%d"), 
-        "Invalid date format. Please use YYYY-MM-DD."
-    ).strftime("%Y-%m-%d")
+        "Enter birth date (YYYY-MM-DD): ",
+        lambda x: validate_date(x, "%Y-%m-%d"),
+        "Invalid date format"
+    )
     gender = get_valid_input(
-        "Enter gender (M/F): ", 
-        lambda x: x.upper() if x.upper() in ('M', 'F') else ValueError("Invalid gender"), 
-        "Invalid gender. Please enter M or F."
+        "Enter gender (M/F): ",
+        lambda x: validate_choice(x, ['M', 'F']),
+        "Invalid gender"
     )
     position_id = get_valid_input(
-        "Enter position ID: ", 
-        lambda x: int(x) if int(x) > 0 else ValueError("Position ID must be positive"), 
-        "Invalid position ID. Please enter a positive integer."
+        "Enter position ID: ",
+        validate_positive_integer,
+        "Invalid position ID"
     )
     production_line_id = get_valid_input(
-        "Enter production line ID: ", 
-        lambda x: int(x) if int(x) > 0 else ValueError("Production line ID must be positive"), 
-        "Invalid production line ID. Please enter a positive integer."
+        "Enter production line ID: ",
+        validate_positive_integer,
+        "Invalid production line ID"
     )
 
     conn = get_connection()
