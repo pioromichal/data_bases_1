@@ -11,7 +11,6 @@ def display_table(headers, rows):
         formatted_row = []
         for cell in row:
             if isinstance(cell, datetime):
-                # Formatowanie daty
                 formatted_row.append(cell.strftime("%Y-%m-%d"))
             else:
                 formatted_row.append(str(cell))

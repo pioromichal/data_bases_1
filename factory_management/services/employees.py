@@ -1,6 +1,7 @@
 from db.connection import get_connection
 from db.queries import get_all_employees, add_employee
 from utils.table_display import display_table
+from utils.input_validation import *
 from datetime import datetime
 import cx_Oracle
 
@@ -10,21 +11,6 @@ def list_employees():
     employees = get_all_employees(cursor)
     display_table(["ID", "Name", "Surname", "Salary", "Birth Date", "Gender", "Position ID", "Production line ID"], employees)
     conn.close()
-
-def get_valid_input(prompt, validation_fn, error_message):
-    """Funkcja pomocnicza do walidacji danych wejściowych."""
-    while True:
-        user_input = input(prompt)
-        try:
-            return validation_fn(user_input)
-        except ValueError:
-            print(error_message)
-
-def validate_non_empty(name):
-    """Sprawdzanie, czy ciąg znaków nie jest pusty."""
-    if not name.strip():
-        raise ValueError("Name cannot be empty")
-    return name
 
 def create_employee():
     name = get_valid_input(
