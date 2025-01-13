@@ -20,10 +20,16 @@ def get_valid_input(prompt, validation_fn, error_message):
         except ValueError:
             print(error_message)
 
+def validate_non_empty(name):
+    """Sprawdzanie, czy ciąg znaków nie jest pusty."""
+    if not name.strip():
+        raise ValueError("Name cannot be empty")
+    return name
+
 def create_employee():
     name = get_valid_input(
         "Enter name: ", 
-        lambda x: x.strip() if x.strip() else ValueError("Name cannot be empty"), 
+        validate_non_empty, 
         "Invalid name. Please try again."
     )
     surname = get_valid_input(
@@ -64,10 +70,10 @@ def create_employee():
     try:
         add_employee(cursor, name, surname, salary, birth_date, gender, position_id, production_line_id)
         conn.commit()
-        print("Employee added successfully!")
+        print("\nEmployee added successfully!")
     except cx_Oracle.DatabaseError as e:
         error, = e.args
-        print("Error adding employee:", error.message)
-        print("Debug: ", name, surname, salary, birth_date, gender, position_id, production_line_id)
+        print("\nError adding employee:", error.message)
+        # print("Debug: ", name, surname, salary, birth_date, gender, position_id, production_line_id)
     finally:
         conn.close()
