@@ -1,4 +1,4 @@
-from services.employees import list_employees, create_employee
+import services.employees
 
 introduction = """
 Welcome to Factory management application!
@@ -14,6 +14,7 @@ menu = """
 MENU:
   1. List employees
   2. Add employee
+  3. Fire employee
   ...
   0. Exit
 """
@@ -29,10 +30,13 @@ def factory_management():
 
             if choice == "1":
                 print("Chosen 'List employees'\n")
-                list_employees()
+                services.employees.list_employees()
             elif choice == "2":
                 print("Chosen 'Add employee'\n")
-                create_employee()
+                services.employees.create_employee()
+            elif choice == "3":
+                print("Chosen 'Fire employee'\n")
+                services.employees.terminate_employee()
             elif choice == "0":
                 print("Chosen 'Exit'\n")
                 print("Goodbye!")

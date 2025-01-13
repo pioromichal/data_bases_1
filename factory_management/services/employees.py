@@ -1,5 +1,5 @@
 from db.connection import get_connection
-from db.queries import *
+import db.queries as queries
 from utils.table_display import display_table
 from utils.input_validation import *
 import cx_Oracle
@@ -10,7 +10,7 @@ headers = ["ID", "Name", "Surname", "Salary", "Birth Date", "Gender", "Position 
 def list_employees():
     conn = get_connection()
     cursor = conn.cursor()
-    employees = get_all_employees_with_names(cursor)
+    employees = queries.get_all_employees_with_names(cursor)
     display_table("Employees", headers, employees)
     conn.close()
 
@@ -55,11 +55,49 @@ def create_employee():
     cursor = conn.cursor()
 
     try:
-        add_employee(cursor, name, surname, salary, birth_date, gender, position_id, production_line_id)
+        queries.add_employee(cursor, name, surname, salary, birth_date, gender, position_id, production_line_id)
         conn.commit()
         print(colored("\nEmployee added successfully!", 'green'))
     except cx_Oracle.DatabaseError as e:
         error, = e.args
         print(colored("\nError adding employee:", error.message, 'red'))
+    finally:
+        conn.close()
+
+def terminate_employee():
+    employee_id = get_valid_input(
+        "Enter employee ID to terminate: ",
+        validate_positive_integer,
+        "Invalid employee ID"
+    )
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Sprawdzenie, czy pracownik istnieje
+        employee = queries.get_employee_by_id(cursor, employee_id)
+        if not employee:
+            print(colored(f"\nEmployee with ID {employee_id} does not exist.", 'red'))
+            return
+
+        # Wyświetlenie szczegółów pracownika
+        print(colored(f"\nEmployee details:\nID: {employee[0]}, Name: {employee[1]}, Surname: {employee[2]}", 'yellow'))
+
+        # Potwierdzenie usunięcia
+        confirm = input(colored("\nAre you sure you want to terminate this employee? (yes/no): ", 'cyan')).strip().lower()
+        if confirm != 'yes':
+            print(colored("\nOperation canceled.", 'green'))
+            return
+
+        # Usunięcie pracownika
+        queries.delete_employee(cursor, employee_id)
+        conn.commit()
+        print(colored(f"\nEmployee with ID {employee_id} has been terminated successfully!", 'green'))
+
+    except cx_Oracle.DatabaseError as e:
+        error, = e.args
+        print(colored("\nError terminating employee:", 'red'))
+        print(colored(f"Details: {error.message}", 'red'))
     finally:
         conn.close()
