@@ -12,9 +12,10 @@ Use Ctrl+C to exit application at any moment
 
 menu = """
 MENU:
-  1. List employees
+  1. List all employees
   2. Add employee
   3. Fire employee
+  4. Edit employee
   ...
   0. Exit
 """
@@ -37,6 +38,9 @@ def factory_management():
             elif choice == "3":
                 print("Chosen 'Fire employee'\n")
                 services.employees.terminate_employee()
+            elif choice == "4":
+                print("Chosen 'Edit employee'\n")
+                services.employees.edit_employee()
             elif choice == "0":
                 print("Chosen 'Exit'\n")
                 print("Goodbye!")

@@ -101,3 +101,80 @@ def terminate_employee():
         print(colored(f"Details: {error.message}", 'red'))
     finally:
         conn.close()
+
+
+def edit_employee():
+    employee_id = get_valid_input(
+        "Enter employee ID to edit: ",
+        validate_positive_integer,
+        "Invalid employee ID"
+    )
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        # Sprawdzenie, czy pracownik istnieje
+        employee = queries.get_employee_by_id(cursor, employee_id)
+        if not employee:
+            print(colored(f"\nEmployee with ID {employee_id} does not exist.", 'red'))
+            return
+
+        print(colored(f"\nEditing employee: ID: {employee[0]}, Name: {employee[1]}, Surname: {employee[2]}", 'yellow'))
+
+        # Wybór pól do edycji
+        name = get_valid_input(
+            "Enter new name (or leave empty to keep current): ",
+            lambda x: validate_non_empty(x) if x.strip() else None,
+            "Invalid name"
+        )
+
+        surname = get_valid_input(
+            "Enter new surname (or leave empty to keep current): ",
+            lambda x: validate_non_empty(x) if x.strip() else None,
+            "Invalid surname"
+        )
+
+        salary = get_valid_input(
+            "Enter new salary (or leave empty to keep current): ",
+            lambda x: validate_positive_number(x, allow_empty=True),
+            "Invalid salary"
+        )
+
+        birth_date = get_valid_input(
+            "Enter new birth date (YYYY-MM-DD) (or leave empty to keep current): ",
+            lambda x: validate_date(x, "%Y-%m-%d") if x.strip() else None,
+            "Invalid date format"
+        )
+
+        gender = get_valid_input(
+            "Enter new gender (M/F) (or leave empty to keep current): ",
+            lambda x: validate_choice(x, ['M', 'F']) if x.strip() else None,
+            "Invalid gender"
+        )
+
+        position_id = get_valid_input(
+            "Enter new position ID (or leave empty to keep current): ",
+            lambda x: validate_positive_integer(x, allow_empty=True),
+            "Invalid position ID"
+        )
+
+        production_line_id = get_valid_input(
+            "Enter new production line ID (or leave empty to keep current): ",
+            lambda x: validate_positive_integer(x, allow_empty=True),
+            "Invalid production line ID"
+        )
+
+        # Wywołanie zapytania SQL do aktualizacji
+        queries.update_employee(
+            cursor, employee_id, name, surname, salary, birth_date, gender, position_id, production_line_id
+        )
+        conn.commit()
+
+        print(colored("\nEmployee updated successfully!", 'green'))
+    except cx_Oracle.DatabaseError as e:
+        error, = e.args
+        print(colored("\nError updating employee:", 'red'))
+        print(colored(f"Details: {error.message}", 'red'))
+    finally:
+        conn.close()
