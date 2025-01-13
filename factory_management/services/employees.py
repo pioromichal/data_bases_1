@@ -2,8 +2,8 @@ from db.connection import get_connection
 from db.queries import *
 from utils.table_display import display_table
 from utils.input_validation import *
-from datetime import datetime
 import cx_Oracle
+from termcolor import colored
 
 headers = ["ID", "Name", "Surname", "Salary", "Birth Date", "Gender", "Position Name", "Production Line Name"]
 
@@ -26,8 +26,8 @@ def create_employee():
         "Invalid surname"
     )
     salary = get_valid_input(
-        "Enter salary: ",
-        validate_positive_number,
+        "Enter salary (or leave empty): ",
+        lambda x: validate_positive_number(x, allow_empty=True),
         "Invalid salary"
     )
     birth_date = get_valid_input(
@@ -42,12 +42,12 @@ def create_employee():
     )
     position_id = get_valid_input(
         "Enter position ID: ",
-        validate_positive_integer,
+        lambda x: validate_positive_integer(x, allow_empty=False),
         "Invalid position ID"
     )
     production_line_id = get_valid_input(
-        "Enter production line ID: ",
-        validate_positive_integer,
+        "Enter production line ID (or leave empty): ",
+        lambda x: validate_positive_integer(x, allow_empty=True),
         "Invalid production line ID"
     )
 
@@ -57,10 +57,9 @@ def create_employee():
     try:
         add_employee(cursor, name, surname, salary, birth_date, gender, position_id, production_line_id)
         conn.commit()
-        print("\nEmployee added successfully!")
+        print(colored("\nEmployee added successfully!", 'green'))
     except cx_Oracle.DatabaseError as e:
         error, = e.args
-        print("\nError adding employee:", error.message)
-        # print("Debug: ", name, surname, salary, birth_date, gender, position_id, production_line_id)
+        print(colored("\nError adding employee:", error.message, 'red'))
     finally:
         conn.close()
