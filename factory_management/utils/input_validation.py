@@ -1,3 +1,5 @@
+from termcolor import colored
+
 def get_valid_input(prompt, validation_fn, error_message):
     """Funkcja pomocnicza do walidacji danych wejściowych."""
     while True:
@@ -5,7 +7,7 @@ def get_valid_input(prompt, validation_fn, error_message):
         try:
             return validation_fn(user_input)
         except ValueError:
-            print(error_message)
+            print(colored(('\n'+error_message+'\n'), 'red'))
 
 def validate_non_empty(name):
     """Sprawdzanie, czy ciąg znaków nie jest pusty."""

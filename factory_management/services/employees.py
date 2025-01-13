@@ -1,5 +1,5 @@
 from db.connection import get_connection
-from db.queries import get_all_employees, add_employee
+from db.queries import *
 from utils.table_display import display_table
 from utils.input_validation import *
 from datetime import datetime
@@ -8,8 +8,12 @@ import cx_Oracle
 def list_employees():
     conn = get_connection()
     cursor = conn.cursor()
-    employees = get_all_employees(cursor)
-    display_table(["ID", "Name", "Surname", "Salary", "Birth Date", "Gender", "Position ID", "Production line ID"], employees)
+    employees = get_all_employees_with_names(cursor)
+    headers = [
+        "ID", "Name", "Surname", "Salary", 
+        "Birth Date", "Gender", "Position Name", "Production Line Name"
+    ]
+    display_table("Employees", headers, employees)
     conn.close()
 
 def create_employee():
@@ -49,7 +53,6 @@ def create_employee():
         "Invalid production line ID. Please enter a positive integer."
     )
 
-    # Połączenie z bazą danych
     conn = get_connection()
     cursor = conn.cursor()
 
