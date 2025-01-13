@@ -23,5 +23,5 @@ sudo ldconfig
 
 ```bash
 sudo apt install libaio1 
-pip install cx_Oracle 
+pip install cx_Oracle rich
 ```

@@ -2,8 +2,8 @@ from rich.console import Console
 from rich.table import Table
 from datetime import datetime
 
-def display_table(headers, rows):
-    table = Table(title="Data")
+def display_table(title, headers, rows):
+    table = Table(title=title)
     for header in headers:
         table.add_column(header, style="cyan", no_wrap=True)
 
@@ -11,7 +11,6 @@ def display_table(headers, rows):
         formatted_row = []
         for cell in row:
             if isinstance(cell, datetime):
-                # Formatowanie daty
                 formatted_row.append(cell.strftime("%Y-%m-%d"))
             else:
                 formatted_row.append(str(cell))

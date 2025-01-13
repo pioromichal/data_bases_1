@@ -1,24 +1,58 @@
-from services.employees import list_employees, create_employee
+import services.employees
 
-def main_menu():
-    try:
-        while True:
-            print("1. List employees")
-            print("2. Add employee")
-            print("0. Exit")
+introduction = """
+Welcome to Factory management application!
+=============================================
+Instructions:
+Use Keyboard for interaction with app
+Use Ctrl+D for returning to menu
+Use Ctrl+C to exit application at any moment
+=============================================
+"""
+
+menu = """
+MENU:
+  1. List all employees
+  2. Add employee
+  3. Fire employee
+  4. Edit employee
+  ...
+  0. Exit
+"""
+
+def factory_management():
+    print(introduction)
+
+    while True:
+        try:
+            print(menu)
+
             choice = input("Choose an option: ")
 
             if choice == "1":
-                list_employees()
+                print("Chosen 'List employees'\n")
+                services.employees.list_employees()
             elif choice == "2":
-                create_employee()
+                print("Chosen 'Add employee'\n")
+                services.employees.create_employee()
+            elif choice == "3":
+                print("Chosen 'Fire employee'\n")
+                services.employees.terminate_employee()
+            elif choice == "4":
+                print("Chosen 'Edit employee'\n")
+                services.employees.edit_employee()
             elif choice == "0":
+                print("Chosen 'Exit'\n")
                 print("Goodbye!")
                 break
             else:
-                print("Invalid choice. Please try again.")
-    except KeyboardInterrupt:
-        print("\nOperation interrupted. Goodbye!")
+                print("\nInvalid choice. Please try again.")
+                
+        except EOFError:
+            print("\n\nOperation interrupted with Ctrl+D. Returning to main menu.")
+        except KeyboardInterrupt:
+            print("\n\nOperation interrupted with Ctrl+C. Goodbye!")
+            break
 
 if __name__ == "__main__":
-    main_menu()
+    factory_management()
