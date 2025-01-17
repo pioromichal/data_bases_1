@@ -176,5 +176,7 @@ def edit_employee():
         error, = e.args
         print(colored("\nError updating employee:", 'red'))
         print(colored(f"Details: {error.message}", 'red'))
+    except ValueError as e:
+        print(colored(f"\n{e}\n", 'red'))
     finally:
         conn.close()
