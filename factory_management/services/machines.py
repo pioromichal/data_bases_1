@@ -17,86 +17,79 @@ def list_services():
 
 
 def start_service():
-    print("\nStarting a new service...")
+    machine_id = get_valid_input(
+        "Enter machine ID: ", 
+        validate_positive_integer, 
+        "Invalid machine ID"
+    )
+    start_date = get_valid_input(
+        "Enter start date (YYYY-MM-DD): ", 
+        lambda x: validate_date(x, "%Y-%m-%d"), 
+        "Invalid date format"
+    )
+    service_name = get_valid_input(
+        "Enter service name: ", 
+        validate_non_empty, 
+        "Service name cannot be empty"
+    )
+    service_reason = get_valid_input(
+        "Enter service reason (MAINTENANCE/REPAIR/INSPECTION/UPGRADE): ", 
+        lambda x: validate_choice(x, ['MAINTENANCE', 'REPAIR', 'INSPECTION', 'UPGRADE']), 
+        "Invalid reason"
+    )
+    performed_by = get_valid_input(
+        "Enter employee ID (performing service): ", 
+        validate_positive_integer, 
+        "Invalid employee ID"
+    )
 
+    conn = get_connection()
+    cursor = conn.cursor()
+    
     try:
-        service_id = get_valid_input(
-            "Enter service ID: ", 
-            validate_positive_integer, 
-            "Invalid service ID"
-        )
-        machine_id = get_valid_input(
-            "Enter machine ID: ", 
-            validate_positive_integer, 
-            "Invalid machine ID"
-        )
-        start_date = get_valid_input(
-            "Enter start date (YYYY-MM-DD): ", 
-            validate_date, 
-            "Invalid date format"
-        )
-        service_name = get_valid_input(
-            "Enter service name: ", 
-            validate_non_empty, 
-            "Service name cannot be empty"
-        )
-        service_reason = get_valid_input(
-            "Enter service reason: ", 
-            validate_non_empty, 
-            "Service reason cannot be empty"
-        )
-        performed_by = get_valid_input(
-            "Enter employee ID (performing service): ", 
-            validate_positive_integer, 
-            "Invalid employee ID"
-        )
-
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.callproc("START_SERVICE", [service_id, machine_id, start_date, service_name, service_reason, performed_by])
+        queries.start_service(cursor, machine_id, start_date, service_name, service_reason, performed_by)
         conn.commit()
 
-        print(colored(f"Service {service_id} for machine {machine_id} has been successfully started.", 'green'))
+        print(colored(f"\nService '{service_name}' for machine {machine_id} has been successfully started.", 'green'))
     except cx_Oracle.DatabaseError as e:
-        print(colored("Error while starting the service:", 'red'), e)
+        print(colored("\nError while starting the service:", 'red'), e)
     finally:
         cursor.close()
         conn.close()
 
 
 def complete_service():
-    print("\nCompleting a service...")
+    service_id = get_valid_input(
+        "Enter service ID: ", 
+        validate_positive_integer, 
+        "Invalid service ID"
+    )
+    machine_id = get_valid_input(
+        "Enter machine ID: ", 
+        validate_positive_integer, 
+        "Invalid machine ID"
+    )
+    service_status = get_valid_input(
+        "Enter service status (COMPLETED/FAILED): ", 
+        lambda x: validate_choice(x, ['COMPLETED', 'FAILED']), 
+        "Invalid service status"
+    )
+    end_date = get_valid_input(
+        "Enter end date (YYYY-MM-DD): ", 
+        lambda x: validate_date(x, "%Y-%m-%d"), 
+        "Invalid date format"
+    )
+
+    conn = get_connection()
+    cursor = conn.cursor()
 
     try:
-        service_id = get_valid_input(
-            "Enter service ID: ", 
-            validate_positive_integer, 
-            "Invalid service ID"
-        )
-        machine_id = get_valid_input(
-            "Enter machine ID: ", 
-            validate_positive_integer, 
-            "Invalid machine ID"
-        )
-        service_status = get_valid_input(
-            "Enter service status (COMPLETED/FAILED): ", 
-            lambda x: validate_choice(x, ['COMPLETED', 'FAILED']), 
-            "Invalid service status"
-        )
-        end_date = get_valid_input(
-            "Enter end date (YYYY-MM-DD): ", 
-            validate_date, 
-            "Invalid date format"
-        )
-
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.callproc("COMPLETE_SERVICE", [service_id, machine_id, service_status, end_date])
+        queries.complete_service(cursor, service_id, machine_id, service_status, end_date)
         conn.commit()
 
-        print(colored(f"Service {service_id} for machine {machine_id} has been marked as {service_status}.", 'green'))
+        print(colored(f"\nService {service_id} for machine {machine_id} has been marked as {service_status}.", 'green'))
     except cx_Oracle.DatabaseError as e:
-        print(colored("Error while completing the service:", 'red'), e)
+        print(colored("\nError while completing the service:", 'red'), e)
     finally:
         cursor.close()
         conn.close()

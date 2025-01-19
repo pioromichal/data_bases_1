@@ -165,7 +165,6 @@ def edit_employee():
             "Invalid production line ID"
         )
 
-        # Wywołanie zapytania SQL do aktualizacji
         queries.update_employee(
             cursor, employee_id, name, surname, salary, birth_date, gender, position_id, production_line_id
         )

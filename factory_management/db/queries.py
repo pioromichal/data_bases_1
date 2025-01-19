@@ -6,10 +6,6 @@ def get_all_employees(cursor):
     return cursor.fetchall()
 
 def get_all_employees_with_names(cursor):
-    """
-    Pobiera wszystkie rekordy z tabeli Employees z zamianą position_id i production_line_id 
-    na nazwy stanowisk i linii produkcyjnych.
-    """
     query = """
         SELECT 
             e.employee_id,
@@ -36,7 +32,6 @@ def add_employee(cursor, name, surname, salary, birth_date, gender, position_id,
     """, (name, surname, salary, birth_date, gender, position_id, production_line_id))
 
 def get_employee_by_id(cursor, employee_id):
-    """Pobiera szczegóły pracownika na podstawie jego ID."""
     query = """
     SELECT employee_id, name, surname
     FROM Employees
@@ -47,7 +42,6 @@ def get_employee_by_id(cursor, employee_id):
 
 
 def delete_employee(cursor, employee_id):
-    """Usuwa pracownika na podstawie jego ID."""
     query = """
     DELETE FROM Employees
     WHERE employee_id = :employee_id
@@ -55,7 +49,6 @@ def delete_employee(cursor, employee_id):
     cursor.execute(query, {'employee_id': employee_id})
 
 def update_employee(cursor, employee_id, name=None, surname=None, salary=None, birth_date=None, gender=None, position_id=None, production_line_id=None):
-    """Aktualizuje dane pracownika na podstawie podanych pól."""
     fields = []
     params = {'employee_id': employee_id}
 
@@ -104,3 +97,41 @@ def get_all_services(cursor):
         FROM SERVICES
     """)
     return cursor.fetchall()
+
+
+def start_service(cursor, machine_id, start_date, service_name, service_reason, performed_by):
+    sql = """
+    begin
+        start_service(
+            :machine_id,
+            to_date(:start_date, 'YYYY-MM-DD'),
+            :service_name,
+            :service_reason,
+            :performed_by
+        );
+    end;
+    """
+    cursor.execute(sql, {
+        "machine_id": machine_id,
+        "start_date": start_date,
+        "service_name": service_name,
+        "service_reason": service_reason,
+        "performed_by": performed_by
+    })
+
+
+def complete_service(cursor, service_id, service_status, end_date):
+    sql = """
+    begin
+        complete_service(
+            :act_service_id,
+            :new_service_status,
+            to_date(:new_end_date, 'YYYY-MM-DD')
+        );
+    end;
+    """
+    cursor.execute(sql, {
+        "act_service_id": service_id,
+        "new_service_status": service_status,
+        "new_end_date": end_date
+    })    
