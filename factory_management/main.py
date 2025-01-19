@@ -1,4 +1,5 @@
 import services.employees
+import services.machines
 
 introduction = """
 Welcome to Factory management application!
@@ -10,41 +11,42 @@ Use Ctrl+C to exit application at any moment
 =============================================
 """
 
-menu = """
-MENU:
-  1. List all employees
-  2. Add employee
-  3. Fire employee
-  4. Edit employee
-  ...
-  0. Exit
-"""
+
+menu_options = {
+    "1": ("List all employees", services.employees.list_employees),
+    "2": ("Add employee", services.employees.create_employee),
+    "3": ("Fire employee", services.employees.terminate_employee),
+    "4": ("Edit employee", services.employees.edit_employee),
+
+    "5": ("List all services", services.machines.list_services),
+    "6": ("Start a service", services.machines.start_service),
+    "7": ("Complete a service", services.machines.complete_service),
+
+    "0": ("Exit", None)
+}
+
+def display_menu():
+    print("\nMENU:")
+    for key, (description, _) in menu_options.items():
+        print(f"  {key}. {description}")
 
 def factory_management():
+
     print(introduction)
 
     while True:
         try:
-            print(menu)
+            display_menu()
 
-            choice = input("Choose an option: ")
-
-            if choice == "1":
-                print("Chosen 'List employees'\n")
-                services.employees.list_employees()
-            elif choice == "2":
-                print("Chosen 'Add employee'\n")
-                services.employees.create_employee()
-            elif choice == "3":
-                print("Chosen 'Fire employee'\n")
-                services.employees.terminate_employee()
-            elif choice == "4":
-                print("Chosen 'Edit employee'\n")
-                services.employees.edit_employee()
-            elif choice == "0":
-                print("Chosen 'Exit'\n")
-                print("Goodbye!")
-                break
+            choice = input("\nChoose an option: ")
+            if choice in menu_options:
+                description, action = menu_options[choice]
+                print(f"\nChosen '{description}'\n")
+                if action:
+                    action()
+                else:
+                    print("Goodbye!")
+                    break
             else:
                 print("\nInvalid choice. Please try again.")
                 
