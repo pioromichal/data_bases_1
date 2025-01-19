@@ -23,6 +23,7 @@ menu_sections = {
         "5": ("List all services", services.machines.list_services),
         "6": ("Start a service", services.machines.start_service),
         "7": ("Complete a service", services.machines.complete_service),
+        "8": ("Machines Requiring Service", services.machines.check_production_line_service),
     },
     "Other": {
         "0": ("Exit", None),
