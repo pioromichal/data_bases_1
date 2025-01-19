@@ -96,3 +96,11 @@ def update_employee(cursor, employee_id, name=None, surname=None, salary=None, b
     WHERE employee_id = :employee_id
     """
     cursor.execute(query, params)
+
+
+def get_all_services(cursor):
+    cursor.execute("""
+        SELECT *
+        FROM SERVICES
+    """)
+    return cursor.fetchall()
