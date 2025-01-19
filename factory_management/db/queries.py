@@ -120,20 +120,18 @@ def start_service(cursor, machine_id, start_date, service_name, service_reason, 
     })
 
 
-def complete_service(cursor, service_id, machine_id, service_status, end_date):
+def complete_service(cursor, service_id, service_status, end_date):
     sql = """
     begin
         complete_service(
-            :service_id,
-            :machine_id,
-            :service_status,
-            to_date(:end_date, 'YYYY-MM-DD')
+            :act_service_id,
+            :new_service_status,
+            to_date(:new_end_date, 'YYYY-MM-DD')
         );
     end;
     """
     cursor.execute(sql, {
-        "service_id": service_id,
-        "machine_id": machine_id,
-        "service_status": service_status,
-        "end_date": end_date
-    })
+        "act_service_id": service_id,
+        "new_service_status": service_status,
+        "new_end_date": end_date
+    })    

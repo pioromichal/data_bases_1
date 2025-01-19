@@ -1,5 +1,6 @@
 import services.employees
 import services.machines
+from termcolor import colored
 
 introduction = """
 Welcome to Factory management application!
@@ -48,7 +49,7 @@ def factory_management():
                     print("Goodbye!")
                     break
             else:
-                print("\nInvalid choice. Please try again.")
+                print(colored("\nInvalid choice. Please try again.", 'red'))
                 
         except EOFError:
             print("\n\nOperation interrupted with Ctrl+D. Returning to main menu.")
