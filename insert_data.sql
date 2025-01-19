@@ -21,6 +21,7 @@ VALUES ('Bottling Line 2', DATE '2024-07-01', 'ACTIVE');
 COMMIT;
 
 -- Wstawianie danych do Machines
+-- Machines
 INSERT INTO Machines (machine_name, machine_type_id, production_line_id, status)
 VALUES ('Fermenter A', 1, 1, 'ACTIVE');
 INSERT INTO Machines (machine_name, machine_type_id, production_line_id, status)
@@ -52,6 +53,7 @@ VALUES ('Bottling Machine D', 2, 5, 'ACTIVE');
 INSERT INTO Machines (machine_name, machine_type_id, production_line_id, status)
 VALUES ('Pasteurizer B', 3, 5, 'ACTIVE');
 COMMIT;
+
 
 -- Wstawianie danych do Positions
 INSERT INTO Positions (position_name, min_salary, max_salary, service_permission)
@@ -90,17 +92,18 @@ VALUES ('Sophia', 'Lewis', DATE '1990-12-03', 'F', 5, 2);
 COMMIT;
 
 -- Wstawianie danych do Services
-INSERT INTO Services (service_name, machine_id, service_date, performed_by)
-VALUES ('Filter Replacement', 1, DATE '2024-03-01', 2);
-INSERT INTO Services (service_name, machine_id, service_date, performed_by)
-VALUES ('Cleaning', 3, DATE '2024-04-15', 3);
-INSERT INTO Services (service_name, machine_id, service_date, performed_by)
-VALUES ('Calibration', 7, DATE '2024-06-20', 1);
-INSERT INTO Services (service_name, machine_id, service_date, performed_by)
-VALUES ('Inspection', 9, DATE '2024-08-05', 2);
-INSERT INTO Services (service_name, machine_id, service_date, performed_by)
-VALUES ('Repair', 13, DATE '2024-09-10', 3);
+INSERT INTO Services (service_name, machine_id, start_date, end_date, performed_by, service_reason, service_status)
+VALUES ('Filter Replacement', 1, DATE '2024-03-01', DATE '2024-03-02', 2, 'MAINTENANCE', 'COMPLETED');
+INSERT INTO Services (service_name, machine_id, start_date, end_date, performed_by, service_reason, service_status)
+VALUES ('Cleaning', 3, DATE '2024-04-15', DATE '2024-04-16', 3, 'MAINTENANCE', 'COMPLETED');
+INSERT INTO Services (service_name, machine_id, start_date, end_date, performed_by, service_reason, service_status)
+VALUES ('Calibration', 7, DATE '2024-06-20', DATE '2024-06-21', 1, 'INSPECTION', 'COMPLETED');
+INSERT INTO Services (service_name, machine_id, start_date, end_date, performed_by, service_reason, service_status)
+VALUES ('Inspection', 9, DATE '2024-08-05', DATE '2024-08-06', 2, 'INSPECTION', 'COMPLETED');
+INSERT INTO Services (service_name, machine_id, start_date, end_date, performed_by, service_reason, service_status)
+VALUES ('Repair', 13, DATE '2024-09-10', DATE '2024-09-11', 3, 'REPAIR', 'COMPLETED');
 COMMIT;
+
 
 -- Wstawianie danych do Products
 BEGIN
