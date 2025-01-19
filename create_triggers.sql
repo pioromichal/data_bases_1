@@ -4,23 +4,28 @@ FOR EACH ROW
 DECLARE
     v_count NUMBER;
 BEGIN
-    -- Check if the machine_type_id exists
-    SELECT COUNT(*) INTO v_count
-    FROM Machine_Types
-    WHERE machine_type_id = :NEW.machine_type_id;
-    IF v_count = 0 THEN
-        RAISE_APPLICATION_ERROR(-20001, 'No machine type exists for the given machine_type_id.');
+    -- Check if the machine_type_id exists (only if NOT NULL)
+    IF :NEW.machine_type_id IS NOT NULL THEN
+        SELECT COUNT(*) INTO v_count
+        FROM Machine_Types
+        WHERE machine_type_id = :NEW.machine_type_id;
+        IF v_count = 0 THEN
+            RAISE_APPLICATION_ERROR(-20001, 'No machine type exists for the given machine_type_id.');
+        END IF;
     END IF;
 
-    -- Check if the production_line_id exists
-    SELECT COUNT(*) INTO v_count
-    FROM Production_Lines
-    WHERE production_line_id = :NEW.production_line_id;
-    IF v_count = 0 THEN
-        RAISE_APPLICATION_ERROR(-20002, 'No production line exists for the given production_line_id.');
+    -- Check if the production_line_id exists (only if NOT NULL)
+    IF :NEW.production_line_id IS NOT NULL THEN
+        SELECT COUNT(*) INTO v_count
+        FROM Production_Lines
+        WHERE production_line_id = :NEW.production_line_id;
+        IF v_count = 0 THEN
+            RAISE_APPLICATION_ERROR(-20002, 'No production line exists for the given production_line_id.');
+        END IF;
     END IF;
 END;
 /
+
 
 CREATE OR REPLACE TRIGGER trg_services_fk_check
 BEFORE INSERT OR UPDATE ON Services
@@ -28,12 +33,14 @@ FOR EACH ROW
 DECLARE
     v_count NUMBER;
 BEGIN
-    -- Check if the machine_id exists
-    SELECT COUNT(*) INTO v_count
-    FROM Machines
-    WHERE machine_id = :NEW.machine_id;
-    IF v_count = 0 THEN
-        RAISE_APPLICATION_ERROR(-20003, 'No machine exists for the given machine_id.');
+    -- Check if the machine_id exists (only if NOT NULL)
+    IF :NEW.machine_id IS NOT NULL THEN
+        SELECT COUNT(*) INTO v_count
+        FROM Machines
+        WHERE machine_id = :NEW.machine_id;
+        IF v_count = 0 THEN
+            RAISE_APPLICATION_ERROR(-20003, 'No machine exists for the given machine_id.');
+        END IF;
     END IF;
 
     -- Check if performed_by (if not NULL) exists in Employees table
@@ -48,21 +55,25 @@ BEGIN
 END;
 /
 
+
 CREATE OR REPLACE TRIGGER trg_products_fk_check
 BEFORE INSERT OR UPDATE ON Products
 FOR EACH ROW
 DECLARE
     v_count NUMBER;
 BEGIN
-    -- Check if the production_line_id exists
-    SELECT COUNT(*) INTO v_count
-    FROM Production_Lines
-    WHERE production_line_id = :NEW.production_line_id;
-    IF v_count = 0 THEN
-        RAISE_APPLICATION_ERROR(-20005, 'No production line exists for the given production_line_id.');
+    -- Check if the production_line_id exists (only if NOT NULL)
+    IF :NEW.production_line_id IS NOT NULL THEN
+        SELECT COUNT(*) INTO v_count
+        FROM Production_Lines
+        WHERE production_line_id = :NEW.production_line_id;
+        IF v_count = 0 THEN
+            RAISE_APPLICATION_ERROR(-20002, 'No production line exists for the given production_line_id.');
+        END IF;
     END IF;
 END;
 /
+
 
 CREATE OR REPLACE TRIGGER trg_employees_fk_check
 BEFORE INSERT OR UPDATE ON Employees
@@ -70,22 +81,54 @@ FOR EACH ROW
 DECLARE
     v_count NUMBER;
 BEGIN
-    -- Check if the position_id exists in the Positions table
-    SELECT COUNT(*) INTO v_count
-    FROM Positions
-    WHERE position_id = :NEW.position_id;
-    IF v_count = 0 THEN
-        RAISE_APPLICATION_ERROR(-20006, 'No position exists for the given position_id.');
+    -- Check if the position_id exists in the Positions table (only if NOT NULL)
+    IF :NEW.position_id IS NOT NULL THEN
+        SELECT COUNT(*) INTO v_count
+        FROM Positions
+        WHERE position_id = :NEW.position_id;
+        IF v_count = 0 THEN
+            RAISE_APPLICATION_ERROR(-20006, 'No position exists for the given position_id.');
+        END IF;
     END IF;
 
-    -- Check if the production_line_id exists in the Production_Lines table (if not NULL)
+    -- Check if the production_line_id exists in the Production_Lines table (only if NOT NULL)
     IF :NEW.production_line_id IS NOT NULL THEN
         SELECT COUNT(*) INTO v_count
         FROM Production_Lines
         WHERE production_line_id = :NEW.production_line_id;
         IF v_count = 0 THEN
-            RAISE_APPLICATION_ERROR(-20007, 'No production line exists for the given production_line_id.');
+            RAISE_APPLICATION_ERROR(-20002, 'No production line exists for the given production_line_id.');
         END IF;
     END IF;
 END;
 /
+
+
+CREATE OR REPLACE TRIGGER trg_machines_history_fk_check
+BEFORE INSERT OR UPDATE ON Machines_History
+FOR EACH ROW
+DECLARE
+    v_count NUMBER;
+BEGIN
+    -- Check if the machine_id exists in the Machines table (only if NOT NULL)
+    IF :NEW.machine_id IS NOT NULL THEN
+        SELECT COUNT(*) INTO v_count
+        FROM Machines
+        WHERE machine_id = :NEW.machine_id;
+        IF v_count = 0 THEN
+            RAISE_APPLICATION_ERROR(-20003, 'No machine exists for the given machine_id.');
+        END IF;
+    END IF;
+
+    -- Check if the new_production_line_id exists in the Production_Lines table (only if NOT NULL)
+    IF :NEW.new_production_line_id IS NOT NULL THEN
+        SELECT COUNT(*) INTO v_count
+        FROM Production_Lines
+        WHERE production_line_id = :NEW.new_production_line_id;
+        IF v_count = 0 THEN
+            RAISE_APPLICATION_ERROR(-20002, 'No production line exists for the given new_production_line_id.');
+        END IF;
+    END IF;
+END;
+/
+

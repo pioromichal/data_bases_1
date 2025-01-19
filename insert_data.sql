@@ -147,3 +147,4 @@ VALUES (14, 1, DATE '2024-01-01');
 INSERT INTO Machines_History (machine_id, new_production_line_id, transfer_date)
 VALUES (15, 2, DATE '2024-01-01');
 
+commit;

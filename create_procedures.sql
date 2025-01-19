@@ -8,7 +8,7 @@ CREATE OR REPLACE PROCEDURE register_machine (
 BEGIN
     -- Wstaw nową maszynę
     INSERT INTO Machines (machine_name, machine_type_id, production_line_id, status)
-    VALUES (machine_name, machine_type_id, new_production_line_id, 'Active')
+    VALUES (machine_name, machine_type_id, new_production_line_id, 'ACTIVE')
     RETURNING machine_id INTO v_machine_id;
 
     -- Zarejestruj zmianę w tabeli historii maszyn
@@ -22,7 +22,7 @@ END;
 
 
 CREATE OR REPLACE PROCEDURE scrap_machine (
-    machine_id NUMBER
+    act_machine_id NUMBER
 ) AS
     v_production_line_id NUMBER;
 BEGIN
@@ -30,26 +30,23 @@ BEGIN
     SELECT production_line_id
     INTO v_production_line_id
     FROM Machines
-    WHERE machine_id = machine_id;
+    WHERE machine_id = act_machine_id;
 
     -- Dodaj wpis do historii maszyn (maszyna przed usunięciem)
     INSERT INTO MACHINES_HISTORY (machine_id, new_production_line_id, transfer_date)
-    VALUES (machine_id, NULL, SYSDATE);
+    VALUES (act_machine_id, NULL, SYSDATE);
 
     -- Ustawienie numeru linii produkcyjnej na NULL (w razie potrzeby)
     UPDATE Machines
-    SET production_line_id = NULL
-    WHERE machine_id = machine_id;
+    SET production_line_id = NULL, status = 'SCRAPED'
+    WHERE machine_id = act_machine_id;
 
-    -- Usuń maszynę z tabeli Machines
-    DELETE FROM Machines
-    WHERE machine_id = machine_id;
 
-    DBMS_OUTPUT.PUT_LINE('Machine with ID ' || machine_id || ' has been scrapped.');
+    DBMS_OUTPUT.PUT_LINE('Machine with ID ' || act_machine_id || ' has been scrapped.');
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
         -- Jeśli maszyna nie istnieje
-        RAISE_APPLICATION_ERROR(-20003, 'Machine with ID ' || machine_id || ' does not exist.');
+        RAISE_APPLICATION_ERROR(-20003, 'Machine with ID ' || act_machine_id || ' does not exist.');
     WHEN OTHERS THEN
         -- Obsłuż inne nieoczekiwane błędy
         RAISE_APPLICATION_ERROR(-20010, 'An unexpected error occurred: ' || SQLERRM);
@@ -107,88 +104,41 @@ END;
 
 -- Procedura: Usuwanie linii produkcyjnej
 CREATE OR REPLACE PROCEDURE scrap_production_line (
-    production_line_id NUMBER
+    act_production_line_id NUMBER
 ) AS
 BEGIN
     -- Aktualizacja statusu i daty usunięcia
     UPDATE Production_Lines
     SET status = 'INACTIVE',
         removal_date = SYSDATE
-    WHERE production_line_id = production_line_id;
+    WHERE production_line_id = act_production_line_id;
 
     -- Sprawdzenie, czy aktualizacja się powiodła
     IF SQL%ROWCOUNT = 0 THEN
-        DBMS_OUTPUT.PUT_LINE('No production line found with ID ' || production_line_id || '.');
+        RAISE_APPLICATION_ERROR(-20002, 'No production line found with ID ' || act_production_line_id || '.');
     ELSE
-        DBMS_OUTPUT.PUT_LINE('Production line with ID ' || production_line_id || ' has been marked as removed.');
+        DBMS_OUTPUT.PUT_LINE('Production line with ID ' || act_production_line_id || ' has been marked as removed.');
     END IF;
-EXCEPTION
-    WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('An unexpected error occurred: ' || SQLERRM);
 END;
 /
 
--- -- Procedura: Zmiana statusu maszyny na "oczekujący na serwis"
--- CREATE OR REPLACE PROCEDURE change_machine_status_to_service (
---     production_line_id NUMBER
--- ) AS
---     v_machine_id NUMBER;
--- BEGIN
---     -- Znajdź maszynę, która wymaga serwisu
---     SELECT machine_id
---     INTO v_machine_id
---     FROM Machines
---     WHERE production_line_id = production_line_id
---       AND requires_service = 1
---     FETCH FIRST ROW ONLY;
-
---     IF v_machine_id IS NULL THEN
---         RAISE_APPLICATION_ERROR(-20011, 'No machine on this production line requires service.');
---         RETURN;
---     END IF;
-
---     -- Zmiana statusu maszyny na "oczekujący na serwis"
---     UPDATE Machines
---     SET status = 'Awaiting Service'
---     WHERE machine_id = v_machine_id;
-
---     -- Zmiana statusu linii produkcyjnej na "oczekujący na serwis"
---     UPDATE Production_Lines
---     SET status = 'Awaiting Service'
---     WHERE production_line_id = production_line_id
---       AND EXISTS (
---           SELECT 1
---           FROM Machines
---           WHERE production_line_id = production_line_id
---             AND requires_service = 1
---       );
-
---     DBMS_OUTPUT.PUT_LINE('Machine with ID ' || v_machine_id || ' on production line ' || production_line_id || ' is now awaiting service.');
--- EXCEPTION
---     WHEN OTHERS THEN
---         RAISE_APPLICATION_ERROR(-20012, 'An unexpected error occurred: ' || SQLERRM);
--- END;
--- /
-
-
-
 CREATE OR REPLACE PROCEDURE start_service (
-    service_id NUMBER,
-    machine_id NUMBER,
-    start_date DATE,
-    service_name VARCHAR2,
-    service_reason VARCHAR2,
-    performed_by NUMBER  -- ID pracownika wykonującego serwis
+    act_machine_id NUMBER,
+    new_start_date DATE,
+    new_service_name VARCHAR2,
+    new_service_reason VARCHAR2,
+    new_performed_by NUMBER
 ) AS
+    v_service_id NUMBER;
+
 BEGIN
     -- Aktualizacja statusu maszyny na 'MAINTENANCE'
     UPDATE Machines
     SET status = 'MAINTENANCE'
-    WHERE machine_id = machine_id;
+    WHERE machine_id = act_machine_id;
 
     -- Dodanie wpisu o serwisie do tabeli Services (status 'PENDING')
     INSERT INTO Services (
-        service_id,
         machine_id,
         start_date,
         service_name,
@@ -196,53 +146,64 @@ BEGIN
         service_status,
         performed_by
     ) VALUES (
-        service_id,
-        machine_id,
-        start_date,
-        service_name,
-        service_reason,
+        act_machine_id,
+        new_start_date,
+        new_service_name,
+        new_service_reason,
         'PENDING', -- Status 'PENDING' przy rozpoczęciu serwisu
-        performed_by
-    );
+        new_performed_by
+    )
+    RETURNING service_id INTO v_service_id;
 
     -- Wyświetlenie komunikatu o pomyślnym rozpoczęciu serwisu
-    DBMS_OUTPUT.PUT_LINE('Service ' || service_id || ' has been successfully started for machine ' || machine_id || '.');
+    DBMS_OUTPUT.PUT_LINE('Service ' || v_service_id || ' has been successfully started for machine ' || act_machine_id || '.');
 END;
 /
-
 
 
 CREATE OR REPLACE PROCEDURE complete_service (
-    service_id NUMBER,
-    machine_id NUMBER,
-    service_status VARCHAR2,  -- Status serwisu, np. 'COMPLETED', 'FAILED'
-    end_date DATE              -- Data zakończenia serwisu
+    act_service_id NUMBER,
+    new_service_status VARCHAR2,
+    new_end_date DATE
 ) AS
+    v_machine_id NUMBER;
 BEGIN
     -- Zaktualizowanie statusu serwisu w tabeli Services oraz dodanie daty zakończenia
     UPDATE Services
-    SET service_status = service_status, end_date = end_date
-    WHERE service_id = service_id AND machine_id = machine_id;
+    SET service_status = new_service_status, end_date = new_end_date
+    WHERE service_id = act_service_id
+    RETURNING machine_id INTO v_machine_id;
+
+    -- Sprawdzenie, czy serwis istnieje
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20005, 'Service with the given ID does not exist.');
+    END IF;
+
+    -- Sprawdzenie, czy maszyna została przypisana
+    IF v_machine_id IS NULL THEN
+        RAISE_APPLICATION_ERROR(-20003, 'No machine associated with this service.');
+    END IF;
 
     -- Jeśli serwis zakończył się sukcesem, zaktualizuj status maszyny na 'ACTIVE'
-    IF service_status = 'COMPLETED' THEN
+    IF new_service_status = 'COMPLETED' THEN
         UPDATE Machines
         SET status = 'ACTIVE'
-        WHERE machine_id = machine_id;
+        WHERE machine_id = v_machine_id;
     END IF;
 
     -- Jeśli serwis zakończył się niepowodzeniem, maszyna pozostaje w 'MAINTENANCE'
-    IF service_status = 'FAILED' THEN
+    IF new_service_status = 'FAILED' THEN
         UPDATE Machines
         SET status = 'MAINTENANCE'
-        WHERE machine_id = machine_id;
+        WHERE machine_id = v_machine_id;
     END IF;
 
     -- Wyświetlenie komunikatu o zakończeniu serwisu
-    DBMS_OUTPUT.PUT_LINE('Service ' || service_id || ' has been ' || service_status || ' for machine ' || machine_id || '.');
-END;
-/
+    DBMS_OUTPUT.PUT_LINE('Service ' || act_service_id || ' has been ' || new_service_status || ' for machine ' || v_machine_id || '.');
 
+END;
+
+/
 
 
 CREATE OR REPLACE PROCEDURE create_product (
@@ -252,10 +213,10 @@ CREATE OR REPLACE PROCEDURE create_product (
 ) AS
     v_cursor SYS_REFCURSOR;
     v_machine_id NUMBER;
-    v_machine_requires_service NUMBER;  -- Zmienna przechowująca informację o stanie maszyny
+    v_machine_requires_service NUMBER;
 BEGIN
     -- Sprawdzamy, czy jakakolwiek maszyna na danej linii produkcyjnej wymaga serwisu
-    v_cursor := check_production_line_service(production_line_id); -- Funkcja zwraca kursor z maszynami wymagającymi serwisu
+    v_cursor := check_production_line_service(production_line_id);
 
     -- Przechodzimy przez wszystkie maszyny wymagające serwisu
     LOOP
@@ -263,7 +224,7 @@ BEGIN
         EXIT WHEN v_cursor%NOTFOUND;
 
         -- Sprawdzamy, czy maszyna jest aktywna
-        SELECT CASE WHEN status = 'ACTIVE' THEN 1 ELSE 0 END
+        SELECT CASE WHEN status = 'ACTIVE' THEN 0 ELSE 1 END
         INTO v_machine_requires_service
         FROM Machines
         WHERE machine_id = v_machine_id;
@@ -276,21 +237,30 @@ BEGIN
         END IF;
     END LOOP;
 
-    -- Jeśli maszyny wymagają serwisu, przerywamy proces tworzenia produktu i zgłaszamy błąd
+    -- Sprawdzamy, czy są jeszcze maszyny wymagające serwisu
     FETCH v_cursor INTO v_machine_id;
     IF v_cursor%FOUND THEN
-        RAISE_APPLICATION_ERROR(-20011, 'One or more machines on production line ' || production_line_id || ' require service. Product creation is halted.');
+        CLOSE v_cursor; -- Zamykanie kursora przed zgłoszeniem błędu
+        RAISE_APPLICATION_ERROR(-20007, 'One or more machines on production line ' || production_line_id || ' require service. Product creation is halted.');
     END IF;
 
-    -- Tworzymy nowy produkt, jeśli maszyny wymagające serwisu zostały obsłużone
+    -- Tworzymy nowy produkt
     INSERT INTO Products (product_name, production_date, product_type, production_line_id)
     VALUES (product_name, SYSDATE, product_type, production_line_id);
 
     -- Zamykamy kursor
     CLOSE v_cursor;
 
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Zamykanie kursora w przypadku wyjątku
+        IF v_cursor%ISOPEN THEN
+            CLOSE v_cursor;
+        END IF;
+        RAISE; -- Przekazanie wyjątku dalej
 END;
 /
+
 
 
 
