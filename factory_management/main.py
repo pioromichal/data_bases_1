@@ -7,7 +7,7 @@ Welcome to Factory Management Application!
 ===================================================
 Instructions:
 - Use Keyboard for interaction with the app.
-- Use Ctrl+D to return to the menu.
+- Use Ctrl+D to return to the menu at any moment.
 - Use Ctrl+C to exit the application at any moment.
 ===================================================
 """
