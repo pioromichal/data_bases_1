@@ -25,6 +25,9 @@ menu_sections = {
         "7": ("Complete a service", services.machines.complete_service),
         "8": ("Machines Requiring Service", services.machines.check_production_line_service),
     },
+    "Machines": {
+        "9": ("List machines - advanced search", services.machines.display_machines_with_dynamic_query),
+    },   
     "Other": {
         "0": ("Exit", None),
     }

@@ -145,3 +145,67 @@ def check_production_line_service():
     finally:
         cursor.close()
         conn.close()
+
+
+def display_machines_with_dynamic_query():
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT type_name FROM Machine_Types")
+    machine_types = [row[0] for row in cursor.fetchall()]
+
+    if not machine_types:
+        print(colored("\nNo machine types found in the database.", 'red'))
+        return
+    
+    cursor.close()
+    conn.close()
+    
+    sort_by = get_valid_input(
+        "Enter sorting criteria (MACHINE_NAME, MACHINE_STATUS, NUM_SERVICES, LAST_SERVICE_DATE): ",
+        lambda x: validate_choice(x, ['MACHINE_NAME', 'MACHINE_STATUS', 'NUM_SERVICES', 'LAST_SERVICE_DATE']),
+        "Invalid sorting criteria"
+    )
+    sort_order = get_valid_input(
+        "Enter sorting order (ASC/DESC): ",
+        lambda x: validate_choice(x, ['ASC', 'DESC']),
+        "Invalid sorting order"
+    )
+    filter_status = get_valid_input(
+        "Enter machine status filter (ACTIVE, INACTIVE, MAINTENANCE, UNKNOWN) or leave blank for no filter: ",
+        lambda x: validate_choice(x, ['ACTIVE', 'INACTIVE', 'MAINTENANCE', 'UNKNOWN'], True),
+        "Invalid status" 
+    )
+    filter_type = get_valid_input(
+        f"Enter machine type filter ({', '.join(machine_types)}) or leave blank for no filter: ",
+        lambda x: validate_choice(x, machine_types, True),
+        "Invalid type"
+    )
+
+    query = queries.generate_machine_query(
+        filter_status=filter_status,
+        filter_type=filter_type,
+        sort_by=sort_by,
+        sort_order=sort_order
+    )
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(query)
+        machines = cursor.fetchall()
+
+        headers = ["Machine ID", "Machine Name", "Machine Type", "Machine Status", "Production Line", "Performed By", "Num Services", "Last Service Date"]
+
+        display_table(
+            title="Advanced Machine Information",
+            headers=headers,
+            rows=machines
+        )
+
+    except cx_Oracle.DatabaseError as e:
+        print(colored("\nError while fetching machine data:", 'red'), e)
+    finally:
+        cursor.close()
+        conn.close()

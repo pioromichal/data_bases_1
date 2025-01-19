@@ -97,3 +97,42 @@ def get_all_services(cursor):
         FROM SERVICES
     """)
     return cursor.fetchall()
+
+
+def generate_machine_query(filter_status=None, filter_type=None, sort_by="MACHINE_NAME", sort_order="ASC"):
+    query = """
+    SELECT
+        m.machine_id,
+        m.machine_name,
+        mt.type_name AS machine_type,
+        m.status AS machine_status,
+        pl.line_name AS production_line,
+        e.name AS performed_by,
+        COUNT(s.service_id) AS num_services,
+        MAX(s.start_date) AS last_service_date
+    FROM
+        Machines m
+        JOIN Machine_Types mt ON m.machine_type_id = mt.machine_type_id
+        LEFT JOIN Production_Lines pl ON m.production_line_id = pl.production_line_id
+        LEFT JOIN Services s ON m.machine_id = s.machine_id
+        LEFT JOIN Employees e ON s.performed_by = e.employee_id
+    """
+
+    where_conditions = []
+
+    if filter_status:
+        where_conditions.append(f"m.status = '{filter_status}'")
+
+    if filter_type:
+        where_conditions.append(f"upper(mt.type_name) = '{filter_type}'")
+
+    if where_conditions:
+        query += " WHERE " + " AND ".join(where_conditions)
+
+    query += """
+    GROUP BY
+        m.machine_id, m.machine_name, mt.type_name, m.status, pl.line_name, e.name
+    """
+
+    query += f" ORDER BY {sort_by} {sort_order}"
+    return query

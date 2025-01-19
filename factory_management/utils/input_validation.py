@@ -56,6 +56,7 @@ def validate_date(value, date_format="%Y-%m-%d", allow_empty=False):
 
 
 def validate_choice(value, choices, allow_empty=False):
+    choices = [choice.upper() for choice in choices]
     if not value.strip() and allow_empty:
         return None
     if value.upper() not in choices:
