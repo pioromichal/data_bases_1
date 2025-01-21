@@ -132,3 +132,32 @@ BEGIN
 END;
 /
 
+-- Trigger do aktualizacji min_salary i max_salary w tabeli Positions
+CREATE OR REPLACE TRIGGER update_position_salary
+AFTER INSERT OR UPDATE ON Employees
+FOR EACH ROW
+BEGIN
+    -- Aktualizacja min_salary, jeśli nowa pensja jest mniejsza
+    UPDATE Positions
+    SET min_salary = :NEW.salary
+    WHERE position_id = :NEW.position_id
+      AND (:NEW.salary < min_salary OR min_salary IS NULL);
+
+    -- Aktualizacja max_salary, jeśli nowa pensja jest większa
+    UPDATE Positions
+    SET max_salary = :NEW.salary
+    WHERE position_id = :NEW.position_id
+      AND (:NEW.salary > max_salary OR max_salary IS NULL);
+END;
+/
+
+-- Trigger do sprawdzania pełnoletności pracownika
+CREATE OR REPLACE TRIGGER check_employee_majority
+AFTER INSERT OR UPDATE ON Employees
+FOR EACH ROW
+BEGIN
+    IF MONTHS_BETWEEN(SYSDATE, :NEW.birth_date) / 12 < 18 THEN
+        RAISE_APPLICATION_ERROR(-20008, 'Employee must be at least 18 years old.');
+    END IF;
+END;
+/
