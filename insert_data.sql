@@ -107,9 +107,9 @@ COMMIT;
 
 -- Wstawianie danych do Products
 BEGIN
-    FOR i IN 1..10000 LOOP
+    FOR i IN 1..100000 LOOP
         INSERT INTO Products (product_name, production_date, product_type, production_line_id)
-        VALUES ('Beer ' || i, DATE '2024-01-01' + DBMS_RANDOM.VALUE(0, 365), 'Pale Ale', MOD(i, 5) + 1);
+        VALUES ('Beer ' || i, DATE '2024-01-01' + DBMS_RANDOM.VALUE(0, 365), 'Pale Ale ' || MOD(i, 5), MOD(i, 5) + 1);
     END LOOP;
 END;
 /
